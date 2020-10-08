@@ -1,14 +1,20 @@
 <?php
 
-class ZbarDecoderTest extends PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+use RobbieP\ZbarQrdecoder\ZbarDecoder;
 
+class ZbarDecoderTest extends TestCase {
+
+    /**
+     * @var ZbarDecoder
+     */
     protected $ZbarDecoder;
     protected $processBuilder;
 
     public function setUp()
     {
         $this->processBuilder = Mockery::mock('\Symfony\Component\Process\ProcessBuilder');
-        $this->ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder([], $this->processBuilder);
+        $this->ZbarDecoder = new ZbarDecoder([], $this->processBuilder);
     }
 
     public function tearDown()
@@ -39,13 +45,13 @@ class ZbarDecoderTest extends PHPUnit_Framework_TestCase {
 
     public function testConfigWorksIfPassedAsArrayInConstructor()
     {
-        $ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder(['path'=>'/new/bin/']);
+        $ZbarDecoder = new ZbarDecoder(['path'=>'/new/bin/']);
         $this->assertEquals('/new/bin', $ZbarDecoder->getPath());
     }
 
     public function testDefaultPathWorks()
     {
-        $ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder([]);
+        $ZbarDecoder = new ZbarDecoder([]);
         $this->assertEquals('/usr/bin', $ZbarDecoder->getPath());
     }
 
@@ -71,7 +77,7 @@ class ZbarDecoderTest extends PHPUnit_Framework_TestCase {
             ->method('getProcess')
             ->will($this->returnValue($process));
 
-        $this->ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder([], $processBuilder);
+        $this->ZbarDecoder = new ZbarDecoder([], $processBuilder);
         $this->ZbarDecoder->make(__DIR__.'/stubs/tc.jpg');
         $this->assertEquals(__DIR__.'/stubs/tc.jpg', $this->ZbarDecoder->getFilePath());
     }
@@ -111,7 +117,7 @@ class ZbarDecoderTest extends PHPUnit_Framework_TestCase {
             ->method('enableOutput')
             ->will($this->returnValue(true));
 
-        $this->ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder([], $processBuilder);
+        $this->ZbarDecoder = new ZbarDecoder([], $processBuilder);
         $this->ZbarDecoder->make(__DIR__.'/stubs/tc.jpg');
         $this->assertEquals(__DIR__.'/stubs/tc.jpg', $this->ZbarDecoder->getFilePath());
     }
@@ -151,7 +157,7 @@ class ZbarDecoderTest extends PHPUnit_Framework_TestCase {
             ->method('enableOutput')
             ->will($this->returnValue(true));
 
-        $this->ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder([], $processBuilder);
+        $this->ZbarDecoder = new ZbarDecoder([], $processBuilder);
         $this->ZbarDecoder->make(__DIR__.'/stubs/tc.jpg');
         $this->assertEquals(__DIR__.'/stubs/tc.jpg', $this->ZbarDecoder->getFilePath());
     }
@@ -191,7 +197,7 @@ class ZbarDecoderTest extends PHPUnit_Framework_TestCase {
             ->method('enableOutput')
             ->will($this->returnValue(true));
 
-        $this->ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder([], $processBuilder);
+        $this->ZbarDecoder = new ZbarDecoder([], $processBuilder);
         $this->ZbarDecoder->make(__DIR__.'/stubs/tc.jpg');
         $this->assertEquals(__DIR__.'/stubs/tc.jpg', $this->ZbarDecoder->getFilePath());
     }
@@ -227,14 +233,12 @@ class ZbarDecoderTest extends PHPUnit_Framework_TestCase {
             ->method('enableOutput')
             ->will($this->returnValue(true));
 
-        $this->ZbarDecoder = new \RobbieP\ZbarQrdecoder\ZbarDecoder([], $processBuilder);
+        $this->ZbarDecoder = new ZbarDecoder([], $processBuilder);
         $result = $this->ZbarDecoder->make(__DIR__.'/stubs/tc.jpg');
         $this->assertEquals(__DIR__.'/stubs/tc.jpg', $this->ZbarDecoder->getFilePath());
         $this->assertInstanceOf('RobbieP\ZbarQrdecoder\Result\ErrorResult', $result);
-        $this->assertEquals(400, $result->code);
-        $this->assertEquals('NOT_FOUND', $result->format);
-        $this->assertEquals('No barcode detected', $result->text);
+        $this->assertFalse($result->hasResult());
+        $this->assertEquals('NOT_FOUND', $result->getFormat());
+        $this->assertEquals('No barcode detected', $result->getText());
     }
-    
 }
- 
